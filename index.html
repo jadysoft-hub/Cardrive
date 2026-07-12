@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Poçtagram Nots</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%231F6F4A%22/><text x=%2250%22 y=%2266%22 font-size=%2050%22 text-anchor=%22middle%22 fill=%22white%22 font-family=%22sans-serif%22>P</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Special+Elite&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --green-900:#0F2E20;
+    --green-700:#1F6F4A;
+    --green-600:#278758;
+    --green-500:#3B9169;
+    --green-200:#CDE9DA;
+    --green-100:#EAF6EF;
+    --white:#FFFFFF;
+    --ink:#122318;
+    --ink-soft:#4C5F55;
+    --danger:#B23B3B;
+    --shadow: 0 6px 18px rgba(15,46,32,0.10);
+    --radius: 14px;
+  }
+  body[data-theme="dark"]{
+    --green-900:#DCEFE3;
+    --green-700:#4CAE7F;
+    --green-600:#59C28E;
+    --green-500:#3FA377;
+    --green-200:#23372B;
+    --green-100:#141F19;
+    --white:#1B2A20;
+    --ink:#E9F3EC;
+    --ink-soft:#93A99C;
+    --danger:#E27575;
+    --shadow: 0 6px 18px rgba(0,0,0,0.35);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Inter',system-ui,sans-serif;
+    background:var(--green-100);
+    color:var(--ink);
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+    transition:background .2s ease, color .2s ease;
+  }
+  h1,h2,h3,.display{font-family:'Space Grotesk',system-ui,sans-serif;}
+  .stamp-font{font-family:'Special Elite',monospace;}
+  button{font-family:inherit;cursor:pointer;}
+  input,textarea{font-family:inherit;}
+  ::selection{background:var(--green-200);}
+
+  /* ---------- Postmark logo ---------- */
+  .postmark{
+    width:40px;height:40px;border-radius:50%;
+    border:2px dashed var(--green-700);
+    display:flex;align-items:center;justify-content:center;
+    color:var(--green-700);font-size:15px;font-weight:700;
+    transform:rotate(-8deg);
+    flex-shrink:0;
+    background:var(--white);
+  }
+  .brand{display:flex;align-items:center;gap:10px;}
+  .brand-text{display:flex;flex-direction:column;line-height:1.05;}
+  .brand-text b{font-size:1.15rem;font-weight:700;color:var(--green-900);}
+  .brand-text span{font-size:0.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);}
+
+  /* ---------- Top bar ---------- */
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:12px 20px;background:var(--white);
+    border-bottom:2px dashed var(--green-200);
+    position:sticky;top:0;z-index:20;
+  }
+  .topbar-right{display:flex;align-items:center;gap:12px;}
+  .user-chip{
+    display:flex;align-items:center;gap:8px;
+    background:var(--green-100);border:1px solid var(--green-200);
+    padding:6px 12px;border-radius:999px;font-size:.85rem;color:var(--green-900);font-weight:500;
+  }
+  .btn{
+    border:none;border-radius:10px;padding:9px 16px;font-size:.88rem;font-weight:600;
+    transition:transform .12s ease, box-shadow .12s ease;
+  }
+  .btn:active{transform:scale(.96);}
+  .btn-primary{background:var(--green-700);color:var(--white);}
+  .btn-primary:hover{background:var(--green-600);}
+  .btn-ghost{background:transparent;color:var(--green-700);border:1.5px solid var(--green-200);}
+  .btn-ghost:hover{border-color:var(--green-500);}
+  .btn-danger{background:transparent;color:var(--danger);border:1.5px solid #EFD2D2;}
+  .btn-danger:hover{background:#FCEEEE;}
+  .btn-block{width:100%;}
+
+  /* ---------- Auth screen ---------- */
+  #auth-screen{
+    min-height:100vh;display:flex;align-items:center;justify-content:center;
+    padding:24px;
+    background:
+      radial-gradient(circle at 15% 20%, var(--green-200) 0, transparent 40%),
+      radial-gradient(circle at 85% 80%, var(--green-200) 0, transparent 40%),
+      var(--green-100);
+  }
+  .auth-card{
+    background:var(--white);border-radius:20px;box-shadow:var(--shadow);
+    width:100%;max-width:400px;padding:32px 28px;
+    border:1px solid var(--green-200);
+    position:relative;
+  }
+  .auth-card::before{
+    content:"";position:absolute;inset:10px;border:2px dashed var(--green-200);
+    border-radius:14px;pointer-events:none;
+  }
+  .auth-head{text-align:center;margin-bottom:22px;display:flex;flex-direction:column;align-items:center;gap:10px;}
+  .auth-head .postmark{width:52px;height:52px;font-size:20px;}
+  .auth-head h1{font-size:1.4rem;margin:0;color:var(--green-900);}
+  .auth-head p{margin:2px 0 0;font-size:.85rem;color:var(--ink-soft);}
+  .tabs{display:flex;background:var(--green-100);border-radius:10px;padding:4px;margin-bottom:20px;}
+  .tab{flex:1;text-align:center;padding:9px 0;border-radius:8px;font-size:.85rem;font-weight:600;color:var(--ink-soft);background:transparent;border:none;}
+  .tab.active{background:var(--white);color:var(--green-700);box-shadow:0 2px 6px rgba(15,46,32,.08);}
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:.78rem;font-weight:600;color:var(--green-900);margin-bottom:6px;}
+  .field input{
+    width:100%;padding:11px 13px;border-radius:10px;border:1.5px solid var(--green-200);
+    font-size:.92rem;outline:none;background:var(--green-100);color:var(--ink);
+  }
+  .field input:focus{border-color:var(--green-500);background:var(--white);}
+  .auth-error{color:var(--danger);font-size:.8rem;margin:-4px 0 12px;min-height:1em;}
+  .auth-note{font-size:.72rem;color:var(--ink-soft);text-align:center;margin-top:14px;line-height:1.5;}
+
+  /* ---------- Provision banner ---------- */
+  #provision-banner{
+    display:none;background:#FFF7E0;border-bottom:2px dashed #E4C567;color:#6B5410;
+    font-size:.8rem;padding:10px 16px;text-align:center;line-height:1.5;
+  }
+  #provision-banner code{background:#fff;padding:2px 6px;border-radius:5px;font-weight:700;}
+
+  /* ---------- Board ---------- */
+  #board-screen{display:none;}
+  .board-wrap{padding:18px;overflow-x:auto;min-height:calc(100vh - 61px);}
+  .board-title-row{display:flex;align-items:center;gap:10px;margin:2px 6px 16px;}
+  .board-title-row h2{margin:0;font-size:1.2rem;color:var(--green-900);}
+  .lists{display:flex;gap:16px;align-items:flex-start;}
+  .list{
+    background:var(--white);border-radius:var(--radius);width:270px;flex:0 0 270px;
+    box-shadow:var(--shadow);border:1px solid var(--green-200);
+    display:flex;flex-direction:column;max-height:calc(100vh - 130px);
+  }
+  .list-header{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:12px 12px 10px;border-bottom:2px dashed var(--green-200);
+    gap:6px;
+  }
+  .list-header input{
+    border:none;background:transparent;font-weight:700;font-size:.95rem;color:var(--green-900);
+    width:100%;outline:none;padding:2px;border-radius:6px;
+  }
+  .list-header input:focus{background:var(--green-100);}
+  .list-count{
+    font-size:.68rem;color:var(--green-700);background:var(--green-100);
+    padding:2px 8px;border-radius:999px;font-weight:700;flex-shrink:0;
+  }
+  .list-del{background:none;border:none;color:var(--ink-soft);font-size:1rem;padding:2px 4px;border-radius:6px;line-height:1;}
+  .list-del:hover{color:var(--danger);background:#FCEEEE;}
+  .cards{padding:10px 10px 4px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:9px;min-height:20px;}
+  .card{
+    background:var(--white);border:1px solid var(--green-200);border-radius:10px;
+    padding:10px 12px 9px;cursor:grab;position:relative;box-shadow:0 2px 5px rgba(15,46,32,.06);
+    transition:box-shadow .15s ease, transform .15s ease;
+  }
+  .card:hover{box-shadow:0 5px 14px rgba(15,46,32,.14);}
+  .card.dragging{opacity:.4;}
+  .card::before{
+    content:"";position:absolute;top:8px;right:8px;width:9px;height:9px;
+    border:1.5px solid var(--green-500);border-radius:2px;opacity:.5;
+  }
+  .card-title{font-size:.87rem;font-weight:600;color:var(--ink);margin:0 20px 3px 0;word-break:break-word;}
+  .card-desc{font-size:.76rem;color:var(--ink-soft);margin:0;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+  .card-drop-slot{height:6px;}
+  .cards.drag-over{background:var(--green-100);border-radius:8px;}
+
+  .add-card-btn, .add-list-btn{
+    background:none;border:none;text-align:left;color:var(--green-700);
+    font-size:.83rem;font-weight:600;padding:9px 12px;margin:2px 6px 10px;border-radius:8px;
+  }
+  .add-card-btn:hover, .add-list-btn:hover{background:var(--green-100);}
+  .mini-form{padding:6px 10px 10px;display:none;flex-direction:column;gap:8px;}
+  .mini-form.show{display:flex;}
+  .mini-form textarea, .mini-form input{
+    border:1.5px solid var(--green-200);border-radius:8px;padding:8px 10px;font-size:.85rem;
+    resize:none;outline:none;
+  }
+  .mini-form textarea:focus, .mini-form input:focus{border-color:var(--green-500);}
+  .mini-form-actions{display:flex;gap:8px;}
+  .mini-form-actions .btn{padding:7px 12px;font-size:.8rem;}
+
+  .add-list-col{
+    flex:0 0 270px;background:rgba(255,255,255,.55);border:2px dashed var(--green-200);
+    border-radius:var(--radius);padding:12px;height:52px;display:flex;align-items:center;
+  }
+  .add-list-col input{
+    border:1.5px solid var(--green-200);border-radius:8px;padding:8px 10px;font-size:.85rem;
+    width:100%;outline:none;display:none;
+  }
+  .add-list-col.editing .add-list-btn{display:none;}
+  .add-list-col.editing input{display:block;}
+
+  .empty-state{text-align:center;padding:60px 20px;color:var(--ink-soft);}
+  .empty-state .postmark{margin:0 auto 14px;}
+  .empty-state h3{color:var(--green-900);margin:0 0 6px;}
+
+  /* ---------- Modal ---------- */
+  .modal-backdrop{
+    display:none;position:fixed;inset:0;background:rgba(15,46,32,.45);
+    align-items:center;justify-content:center;z-index:100;padding:16px;
+  }
+  .modal-backdrop.show{display:flex;}
+  .modal{
+    background:var(--white);border-radius:16px;width:100%;max-width:440px;
+    padding:24px;box-shadow:0 20px 50px rgba(0,0,0,.25);
+  }
+  .modal h3{margin:0 0 16px;color:var(--green-900);}
+  .modal .field textarea{
+    width:100%;padding:11px 13px;border-radius:10px;border:1.5px solid var(--green-200);
+    font-size:.9rem;outline:none;background:var(--green-100);min-height:90px;resize:vertical;
+  }
+  .modal .field textarea:focus{border-color:var(--green-500);background:var(--white);}
+  .modal-actions{display:flex;justify-content:space-between;gap:10px;margin-top:18px;}
+  .modal-actions .right{display:flex;gap:8px;}
+
+  .toast{
+    position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+    background:var(--green-900);color:var(--white);padding:10px 18px;border-radius:10px;
+    font-size:.82rem;box-shadow:var(--shadow);z-index:200;opacity:0;pointer-events:none;
+    transition:opacity .25s ease, transform .25s ease;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(-4px);}
+
+  /* ---------- Theme toggle ---------- */
+  .theme-toggle{
+    width:38px;height:38px;border-radius:50%;border:1.5px solid var(--green-200);
+    background:var(--green-100);color:var(--green-700);font-size:1.05rem;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  }
+  .theme-toggle:hover{border-color:var(--green-500);}
+  .auth-theme-toggle{position:absolute;top:16px;right:16px;}
+
+  /* ---------- Search / büyüteç ---------- */
+  .search-wrap{display:flex;align-items:center;gap:0;}
+  .search-toggle{
+    width:38px;height:38px;border-radius:50%;border:1.5px solid var(--green-200);
+    background:var(--green-100);color:var(--green-700);font-size:1rem;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  }
+  .search-toggle:hover{border-color:var(--green-500);}
+  .search-toggle.active{background:var(--green-700);color:var(--white);border-color:var(--green-700);}
+  #search-input{
+    width:0;opacity:0;padding:0;border:none;background:var(--green-100);color:var(--ink);
+    border-radius:10px;font-size:.85rem;margin-left:0;transition:width .2s ease, opacity .2s ease, padding .2s ease, margin .2s ease;
+    outline:none;
+  }
+  #search-input.show{width:170px;opacity:1;padding:9px 12px;margin-left:8px;border:1.5px solid var(--green-200);}
+  #search-input:focus{border-color:var(--green-500);}
+  .no-match{opacity:.35;}
+
+  /* ---------- Shared card view ---------- */
+  #share-screen{
+    display:none;min-height:100vh;align-items:center;justify-content:center;padding:24px;
+    background:
+      radial-gradient(circle at 15% 20%, var(--green-200) 0, transparent 40%),
+      radial-gradient(circle at 85% 80%, var(--green-200) 0, transparent 40%),
+      var(--green-100);
+  }
+  .share-card{
+    background:var(--white);border-radius:20px;box-shadow:var(--shadow);
+    width:100%;max-width:460px;padding:30px 28px;border:1px solid var(--green-200);position:relative;
+  }
+  .share-card::before{
+    content:"";position:absolute;inset:10px;border:2px dashed var(--green-200);border-radius:14px;pointer-events:none;
+  }
+  .share-head{display:flex;align-items:center;gap:10px;margin-bottom:18px;}
+  .share-head b{color:var(--green-900);font-size:1rem;}
+  .share-label{font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);margin:0 0 6px;}
+  .share-note-title{font-size:1.3rem;font-weight:700;color:var(--green-900);margin:0 0 12px;word-break:break-word;}
+  .share-note-desc{font-size:.92rem;color:var(--ink);line-height:1.6;white-space:pre-wrap;word-break:break-word;}
+  .share-footer{margin-top:22px;text-align:center;}
+
+  /* ---------- Mobile ---------- */
+  @media (max-width: 640px){
+    .topbar{padding:10px 14px;}
+    .brand-text span{display:none;}
+    .board-wrap{padding:12px;}
+    .lists{gap:12px;}
+    .list, .add-list-col{width:82vw;flex:0 0 82vw;scroll-snap-align:start;}
+    .lists{scroll-snap-type:x proximity;}
+    .user-chip span.uname{display:none;}
+  }
+</style>
+</head>
+<body>
+
+<div id="provision-banner"></div>
+
+<!-- AUTH SCREEN -->
+<div id="auth-screen">
+  <div class="auth-card">
+    <button class="theme-toggle auth-theme-toggle" id="auth-theme-btn" onclick="toggleTheme()" title="Tema değiştir">🌙</button>
+    <div class="auth-head">
+      <div class="postmark stamp-font">PN</div>
+      <h1>Poçtagram Nots</h1>
+      <p>Notlarını panolara postala.</p>
+    </div>
+    <div class="tabs">
+      <button class="tab active" id="tab-login" onclick="switchTab('login')">Giriş Yap</button>
+      <button class="tab" id="tab-register" onclick="switchTab('register')">Kayıt Ol</button>
+    </div>
+    <form id="auth-form" onsubmit="handleAuthSubmit(event)">
+      <div class="field">
+        <label>Kullanıcı adı</label>
+        <input id="auth-username" type="text" autocomplete="username" required maxlength="24" placeholder="ornek_kullanici">
+      </div>
+      <div class="field">
+        <label>Şifre</label>
+        <input id="auth-password" type="password" autocomplete="current-password" required minlength="4" placeholder="••••••">
+      </div>
+      <div class="auth-error" id="auth-error"></div>
+      <button type="submit" class="btn btn-primary btn-block" id="auth-submit-btn">Giriş Yap</button>
+    </form>
+    <div class="auth-note">Bilgilerin JSONBin üzerinde saklanır. Bu bir kişisel proje uygulamasıdır, hassas şifreler kullanma.</div>
+  </div>
+</div>
+
+<!-- BOARD SCREEN -->
+<div id="board-screen">
+  <div class="topbar">
+    <div class="brand">
+      <div class="postmark stamp-font" style="width:34px;height:34px;font-size:13px;">PN</div>
+      <div class="brand-text"><b>Poçtagram Nots</b><span>Panon</span></div>
+    </div>
+    <div class="topbar-right">
+      <div class="search-wrap">
+        <button class="search-toggle" id="search-toggle-btn" onclick="toggleSearch()" title="Kartlarda ara">🔍</button>
+        <input type="text" id="search-input" placeholder="Notlarda ara..." oninput="applySearch(this.value)">
+      </div>
+      <button class="theme-toggle" id="board-theme-btn" onclick="toggleTheme()" title="Tema değiştir">🌙</button>
+      <div class="user-chip">👤 <span class="uname" id="chip-username"></span></div>
+      <button class="btn btn-ghost" onclick="logout()">Çıkış</button>
+    </div>
+  </div>
+  <div class="board-wrap">
+    <div class="board-title-row">
+      <h2 id="board-title">Panom</h2>
+    </div>
+    <div class="lists" id="lists-container"></div>
+  </div>
+</div>
+
+<!-- CARD MODAL -->
+<div class="modal-backdrop" id="card-modal">
+  <div class="modal">
+    <h3>Kartı düzenle</h3>
+    <div class="field">
+      <label>Başlık</label>
+      <input id="modal-card-title" type="text" maxlength="120">
+    </div>
+    <div class="field">
+      <label>Açıklama</label>
+      <textarea id="modal-card-desc" maxlength="1000" placeholder="Not ekle..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-danger" onclick="deleteCurrentCard()">Sil</button>
+      <div class="right">
+        <button class="btn btn-ghost" onclick="shareCurrentCard()">🔗 Paylaş</button>
+        <button class="btn btn-ghost" onclick="closeCardModal()">Vazgeç</button>
+        <button class="btn btn-primary" onclick="saveCurrentCard()">Kaydet</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SHARED CARD VIEW (no login required) -->
+<div id="share-screen">
+  <div class="share-card">
+    <div class="share-head">
+      <div class="postmark stamp-font" style="width:34px;height:34px;font-size:13px;">PN</div>
+      <b>Poçtagram Nots — Paylaşılan Not</b>
+    </div>
+    <p class="share-label" id="share-list-label"></p>
+    <h2 class="share-note-title" id="share-note-title">Yükleniyor...</h2>
+    <p class="share-note-desc" id="share-note-desc"></p>
+    <div class="share-footer">
+      <button class="btn btn-primary" onclick="goToApp()">Poçtagram Nots'a git</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================================================
+   POÇTAGRAM NOTS — konfigürasyon
+   ========================================================= */
+const CONFIG = {
+  API_KEY: '$2a$10$KXoVvzuPYbk.L0K93xC6uuDN91YGMRjPe81PCvaBViXDmNfkuDz9y',
+  // İlk çalıştırmada boş bırakıldıysa uygulama otomatik bir JSONBin oluşturur.
+  // Oluşturulan ID ekranın üstünde gösterilir. O ID'yi buraya (BIN_ID: '...')
+  // yapıştırıp dosyayı GitHub'a öyle yükle ki herkes AYNI panoyu / hesapları görsün.
+  BIN_ID: '6a4fc900da38895dfe46d67a'
+};
+const JSONBIN_BASE = 'https://api.jsonbin.io/v3/b';
+const LS_BIN_KEY = 'poctagram_bin_id';
+const LS_SESSION_KEY = 'poctagram_session';
+
+let DB = { users: [], boards: {} };   // boards: { username: [ {id,title,cards:[]} ] }
+let currentUser = null;
+let activeBinId = null;
+let saveTimer = null;
+let editingCard = null; // {listId, cardId}
+
+/* ---------------- Theme ---------------- */
+const LS_THEME_KEY = 'poctagram_theme';
+function initTheme(){
+  const saved = localStorage.getItem(LS_THEME_KEY) ||
+    (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  setTheme(saved);
+}
+function setTheme(mode){
+  document.body.setAttribute('data-theme', mode);
+  localStorage.setItem(LS_THEME_KEY, mode);
+  const icon = mode === 'dark' ? '☀️' : '🌙';
+  const b1 = document.getElementById('auth-theme-btn');
+  const b2 = document.getElementById('board-theme-btn');
+  if (b1) b1.textContent = icon;
+  if (b2) b2.textContent = icon;
+}
+function toggleTheme(){
+  const current = document.body.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+  setTheme(current === 'dark' ? 'light' : 'dark');
+}
+
+/* ---------------- Search / büyüteç ---------------- */
+function toggleSearch(){
+  const input = document.getElementById('search-input');
+  const btn = document.getElementById('search-toggle-btn');
+  const willShow = !input.classList.contains('show');
+  input.classList.toggle('show', willShow);
+  btn.classList.toggle('active', willShow);
+  if (willShow) input.focus();
+  else { input.value=''; applySearch(''); }
+}
+function applySearch(query){
+  const q = query.trim().toLowerCase();
+  document.querySelectorAll('.card').forEach(card => {
+    const match = !q || card.textContent.toLowerCase().includes(q);
+    card.style.display = match ? '' : 'none';
+    card.classList.toggle('no-match', !match && !!q);
+  });
+}
+
+/* ---------------- Share ---------------- */
+function shareCurrentCard(){
+  if (!editingCard) return;
+  const url = new URL(window.location.href);
+  url.search = '';
+  url.searchParams.set('card', editingCard.cardId);
+  const link = url.toString();
+  if (navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(link).then(
+      () => toast('Paylaşım linki kopyalandı!'),
+      () => promptShareLink(link)
+    );
+  } else {
+    promptShareLink(link);
+  }
+}
+function promptShareLink(link){
+  window.prompt('Bu linki kopyala:', link);
+}
+function goToApp(){
+  const url = new URL(window.location.href);
+  url.search = '';
+  window.location.href = url.toString();
+}
+async function renderSharedCard(cardId){
+  document.getElementById('share-screen').style.display = 'flex';
+  try{
+    await ensureBin();
+    await loadData();
+    let found = null, listTitle = '';
+    for (const username in DB.boards){
+      for (const list of DB.boards[username]){
+        const card = list.cards.find(c => c.id === cardId);
+        if (card){ found = card; listTitle = list.title; break; }
+      }
+      if (found) break;
+    }
+    if (!found){
+      document.getElementById('share-note-title').textContent = 'Not bulunamadı';
+      document.getElementById('share-note-desc').textContent = 'Bu not silinmiş olabilir ya da link hatalı.';
+      return;
+    }
+    document.getElementById('share-list-label').textContent = listTitle;
+    document.getElementById('share-note-title').textContent = found.title;
+    document.getElementById('share-note-desc').textContent = found.desc || '(Açıklama eklenmemiş)';
+  }catch(e){
+    document.getElementById('share-note-title').textContent = 'Yüklenemedi';
+    document.getElementById('share-note-desc').textContent = e.message;
+  }
+}
+
+/* ---------------- helpers ---------------- */
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._h);
+  t._h = setTimeout(()=>t.classList.remove('show'), 2400);
+}
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
+
+async function sha256(text){
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+/* ---------------- JSONBin provisioning ---------------- */
+async function ensureBin(){
+  if (CONFIG.BIN_ID) { activeBinId = CONFIG.BIN_ID; return; }
+  const stored = localStorage.getItem(LS_BIN_KEY);
+  if (stored) { activeBinId = stored; return; }
+
+  // Hiç bin yok: yeni bir tane oluştur.
+  const res = await fetch(JSONBIN_BASE, {
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'X-Master-Key': CONFIG.API_KEY,
+      'X-Bin-Name': 'poctagram-nots-data',
+      'X-Bin-Private': 'false'
+    },
+    body: JSON.stringify({ users: [], boards: {} })
+  });
+  if (!res.ok) throw new Error('Bin oluşturulamadı (HTTP ' + res.status + ')');
+  const json = await res.json();
+  activeBinId = json.metadata.id;
+  localStorage.setItem(LS_BIN_KEY, activeBinId);
+
+  const banner = document.getElementById('provision-banner');
+  banner.style.display = 'block';
+  banner.innerHTML = 'Yeni bir JSONBin oluşturuldu: <code>' + activeBinId + '</code>. ' +
+    'Bu ID kalıcı olarak tüm cihazlarda aynı veriyi görmek için index.html içindeki ' +
+    "<code>CONFIG.BIN_ID</code> satırına yapıştırılıp GitHub'a öyle yüklenmeli.";
+}
+
+async function loadData(){
+  const res = await fetch(JSONBIN_BASE + '/' + activeBinId + '/latest', {
+    headers:{ 'X-Master-Key': CONFIG.API_KEY }
+  });
+  if (!res.ok) throw new Error('Veri okunamadı (HTTP ' + res.status + ')');
+  const json = await res.json();
+  DB = json.record && typeof json.record === 'object' ? json.record : { users: [], boards: {} };
+  if (!DB.users) DB.users = [];
+  if (!DB.boards) DB.boards = {};
+}
+
+function saveDataDebounced(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveDataNow, 500);
+}
+async function saveDataNow(){
+  try{
+    const res = await fetch(JSONBIN_BASE + '/' + activeBinId, {
+      method:'PUT',
+      headers:{ 'Content-Type':'application/json', 'X-Master-Key': CONFIG.API_KEY },
+      body: JSON.stringify(DB)
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+  }catch(e){
+    toast('Kaydetme hatası, bağlantını kontrol et.');
+  }
+}
+
+/* ---------------- Auth ---------------- */
+let authMode = 'login';
+function switchTab(mode){
+  authMode = mode;
+  document.getElementById('tab-login').classList.toggle('active', mode==='login');
+  document.getElementById('tab-register').classList.toggle('active', mode==='register');
+  document.getElementById('auth-submit-btn').textContent = mode==='login' ? 'Giriş Yap' : 'Hesap Oluştur';
+  document.getElementById('auth-error').textContent = '';
+}
+
+async function handleAuthSubmit(e){
+  e.preventDefault();
+  const username = document.getElementById('auth-username').value.trim();
+  const password = document.getElementById('auth-password').value;
+  const errEl = document.getElementById('auth-error');
+  errEl.textContent = '';
+  const btn = document.getElementById('auth-submit-btn');
+  btn.disabled = true; const originalText = btn.textContent; btn.textContent = 'Yükleniyor...';
+
+  try{
+    await loadData(); // en güncel veriyi çek
+    const hash = await sha256(password);
+    const existing = DB.users.find(u => u.username.toLowerCase() === username.toLowerCase());
+
+    if (authMode === 'register'){
+      if (existing){ errEl.textContent = 'Bu kullanıcı adı zaten alınmış.'; return; }
+      const newUser = { id: uid(), username, passwordHash: hash };
+      DB.users.push(newUser);
+      DB.boards[username] = [
+        { id: uid(), title: 'Yapılacaklar', cards: [] },
+        { id: uid(), title: 'Devam Ediyor', cards: [] },
+        { id: uid(), title: 'Bitti', cards: [] }
+      ];
+      await saveDataNow();
+      currentUser = username;
+    } else {
+      if (!existing || existing.passwordHash !== hash){ errEl.textContent = 'Kullanıcı adı veya şifre hatalı.'; return; }
+      currentUser = username;
+    }
+    localStorage.setItem(LS_SESSION_KEY, currentUser);
+    enterBoard();
+  }catch(err){
+    errEl.textContent = 'Bağlantı hatası: ' + err.message;
+  }finally{
+    btn.disabled = false; btn.textContent = originalText;
+  }
+}
+
+function logout(){
+  currentUser = null;
+  localStorage.removeItem(LS_SESSION_KEY);
+  document.getElementById('board-screen').style.display = 'none';
+  document.getElementById('auth-screen').style.display = 'flex';
+  document.getElementById('auth-password').value = '';
+}
+
+/* ---------------- Board rendering ---------------- */
+function enterBoard(){
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('board-screen').style.display = 'block';
+  document.getElementById('chip-username').textContent = currentUser;
+  document.getElementById('board-title').textContent = currentUser + "'nin Panosu";
+  if (!DB.boards[currentUser]) DB.boards[currentUser] = [];
+  renderLists();
+}
+
+function getLists(){ return DB.boards[currentUser]; }
+
+function renderLists(){
+  const container = document.getElementById('lists-container');
+  container.innerHTML = '';
+  const lists = getLists();
+
+  lists.forEach(list => {
+    const col = document.createElement('div');
+    col.className = 'list';
+    col.innerHTML = `
+      <div class="list-header">
+        <input type="text" value="${escapeAttr(list.title)}" data-list="${list.id}" onchange="renameList('${list.id}', this.value)">
+        <span class="list-count">${list.cards.length}</span>
+        <button class="list-del" title="Listeyi sil" onclick="deleteList('${list.id}')">✕</button>
+      </div>
+      <div class="cards" id="cards-${list.id}" data-list="${list.id}"></div>
+      <button class="add-card-btn" onclick="toggleCardForm('${list.id}')">+ Kart ekle</button>
+      <div class="mini-form" id="form-${list.id}">
+        <textarea rows="2" placeholder="Kart başlığı..." id="new-card-input-${list.id}"></textarea>
+        <div class="mini-form-actions">
+          <button class="btn btn-primary" onclick="addCard('${list.id}')">Ekle</button>
+          <button class="btn btn-ghost" onclick="toggleCardForm('${list.id}')">Vazgeç</button>
+        </div>
+      </div>
+    `;
+    container.appendChild(col);
+
+    const cardsEl = col.querySelector('.cards');
+    list.cards.forEach(card => cardsEl.appendChild(renderCard(list.id, card)));
+    setupDropZone(cardsEl, list.id);
+  });
+
+  const addCol = document.createElement('div');
+  addCol.className = 'add-list-col';
+  addCol.id = 'add-list-col';
+  addCol.innerHTML = `
+    <button class="add-list-btn" onclick="toggleAddListForm()">+ Liste ekle</button>
+    <input type="text" id="new-list-input" placeholder="Liste adı, Enter'a bas" onkeydown="if(event.key==='Enter'){addList();}" onblur="collapseAddListSoon()">
+  `;
+  container.appendChild(addCol);
+
+  if (lists.length === 0){
+    const empty = document.createElement('div');
+    empty.className = 'empty-state';
+    empty.style.flex = '0 0 100%';
+    empty.innerHTML = `<div class="postmark stamp-font">PN</div><h3>Henüz liste yok</h3><p>İlk listeni oluşturarak panonu postala.</p>`;
+    container.insertBefore(empty, addCol);
+  }
+}
+
+function escapeAttr(s){ return (s||'').replace(/"/g,'&quot;'); }
+function escapeHtml(s){ return (s||'').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+
+function renderCard(listId, card){
+  const el = document.createElement('div');
+  el.className = 'card';
+  el.draggable = true;
+  el.dataset.cardId = card.id;
+  el.dataset.listId = listId;
+  el.innerHTML = `
+    <p class="card-title">${escapeHtml(card.title)}</p>
+    ${card.desc ? `<p class="card-desc">${escapeHtml(card.desc)}</p>` : ''}
+  `;
+  el.addEventListener('click', () => openCardModal(listId, card.id));
+  el.addEventListener('dragstart', e => {
+    el.classList.add('dragging');
+    e.dataTransfer.setData('text/plain', JSON.stringify({ cardId: card.id, fromList: listId }));
+  });
+  el.addEventListener('dragend', () => el.classList.remove('dragging'));
+  return el;
+}
+
+/* ---------------- Drag & drop ---------------- */
+function setupDropZone(cardsEl, listId){
+  cardsEl.addEventListener('dragover', e => {
+    e.preventDefault();
+    cardsEl.classList.add('drag-over');
+    const dragging = document.querySelector('.card.dragging');
+    if (!dragging) return;
+    const after = getDragAfterElement(cardsEl, e.clientY);
+    if (after == null) cardsEl.appendChild(dragging);
+    else cardsEl.insertBefore(dragging, after);
+  });
+  cardsEl.addEventListener('dragleave', () => cardsEl.classList.remove('drag-over'));
+  cardsEl.addEventListener('drop', e => {
+    e.preventDefault();
+    cardsEl.classList.remove('drag-over');
+    const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+    moveCard(data.cardId, data.fromList, listId, Array.from(cardsEl.children).findIndex(c => c.dataset.cardId === data.cardId));
+  });
+}
+function getDragAfterElement(container, y){
+  const els = [...container.querySelectorAll('.card:not(.dragging)')];
+  return els.reduce((closest, child) => {
+    const box = child.getBoundingClientRect();
+    const offset = y - box.top - box.height/2;
+    if (offset < 0 && offset > closest.offset) return { offset, element: child };
+    return closest;
+  }, { offset: -Infinity }).element;
+}
+function moveCard(cardId, fromListId, toListId, newIndex){
+  const lists = getLists();
+  const fromList = lists.find(l => l.id === fromListId);
+  const toList = lists.find(l => l.id === toListId);
+  const idx = fromList.cards.findIndex(c => c.id === cardId);
+  if (idx === -1) return;
+  const [card] = fromList.cards.splice(idx, 1);
+  const safeIndex = Math.max(0, Math.min(newIndex, toList.cards.length));
+  toList.cards.splice(safeIndex, 0, card);
+  renderLists();
+  saveDataDebounced();
+}
+
+/* ---------------- List actions ---------------- */
+function toggleAddListForm(){
+  const col = document.getElementById('add-list-col');
+  col.classList.toggle('editing');
+  if (col.classList.contains('editing')) document.getElementById('new-list-input').focus();
+}
+function collapseAddListSoon(){
+  setTimeout(()=>{
+    const input = document.getElementById('new-list-input');
+    if (input && !input.value.trim()) document.getElementById('add-list-col').classList.remove('editing');
+  }, 150);
+}
+function addList(){
+  const input = document.getElementById('new-list-input');
+  const title = input.value.trim();
+  if (!title) return;
+  getLists().push({ id: uid(), title, cards: [] });
+  input.value = '';
+  renderLists();
+  saveDataDebounced();
+}
+function renameList(listId, newTitle){
+  const list = getLists().find(l => l.id === listId);
+  if (!list) return;
+  list.title = newTitle.trim() || list.title;
+  saveDataDebounced();
+}
+function deleteList(listId){
+  if (!confirm('Bu listeyi ve içindeki tüm kartları silmek istiyor musun?')) return;
+  DB.boards[currentUser] = getLists().filter(l => l.id !== listId);
+  renderLists();
+  saveDataDebounced();
+  toast('Liste silindi.');
+}
+
+/* ---------------- Card actions ---------------- */
+function toggleCardForm(listId){
+  const form = document.getElementById('form-' + listId);
+  form.classList.toggle('show');
+  if (form.classList.contains('show')) document.getElementById('new-card-input-' + listId).focus();
+}
+function addCard(listId){
+  const input = document.getElementById('new-card-input-' + listId);
+  const title = input.value.trim();
+  if (!title) return;
+  const list = getLists().find(l => l.id === listId);
+  list.cards.push({ id: uid(), title, desc: '' });
+  input.value = '';
+  renderLists();
+  saveDataDebounced();
+}
+function openCardModal(listId, cardId){
+  const list = getLists().find(l => l.id === listId);
+  const card = list.cards.find(c => c.id === cardId);
+  if (!card) return;
+  editingCard = { listId, cardId };
+  document.getElementById('modal-card-title').value = card.title;
+  document.getElementById('modal-card-desc').value = card.desc || '';
+  document.getElementById('card-modal').classList.add('show');
+}
+function closeCardModal(){
+  document.getElementById('card-modal').classList.remove('show');
+  editingCard = null;
+}
+function saveCurrentCard(){
+  if (!editingCard) return;
+  const list = getLists().find(l => l.id === editingCard.listId);
+  const card = list.cards.find(c => c.id === editingCard.cardId);
+  const title = document.getElementById('modal-card-title').value.trim();
+  if (!title){ toast('Başlık boş olamaz.'); return; }
+  card.title = title;
+  card.desc = document.getElementById('modal-card-desc').value.trim();
+  closeCardModal();
+  renderLists();
+  saveDataDebounced();
+}
+function deleteCurrentCard(){
+  if (!editingCard) return;
+  const list = getLists().find(l => l.id === editingCard.listId);
+  list.cards = list.cards.filter(c => c.id !== editingCard.cardId);
+  closeCardModal();
+  renderLists();
+  saveDataDebounced();
+  toast('Kart silindi.');
+}
+
+/* ---------------- Boot ---------------- */
+async function boot(){
+  initTheme();
+
+  const params = new URLSearchParams(window.location.search);
+  const sharedCardId = params.get('card');
+  if (sharedCardId){
+    await renderSharedCard(sharedCardId);
+    return;
+  }
+
+  try{
+    await ensureBin();
+    const session = localStorage.getItem(LS_SESSION_KEY);
+    if (session){
+      await loadData();
+      if (DB.users.find(u => u.username === session)){
+        currentUser = session;
+        enterBoard();
+        return;
+      }
+    }
+  }catch(e){
+    toast('Başlatma hatası: ' + e.message);
+  }
+}
+boot();
+</script>
+</body>
+</html>
